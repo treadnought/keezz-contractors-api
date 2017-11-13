@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace KeezzContractors.API.Models
+{
+    public class ContractorInvoiceForCreationDto
+    {
+        public string ContractorInvRef { get; set; }
+        public DateTime ContractorInvDate { get; set; }
+        public int DaysBilled { get; set; }
+        public string ContractorInvNote { get; set; }
+
+        public ICollection<ExpenseDto> Expenses { get; set; }
+            = new List<ExpenseDto>();
+    }
+}
