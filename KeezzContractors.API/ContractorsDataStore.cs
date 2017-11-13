@@ -25,19 +25,102 @@ namespace KeezzContractors.API
                     {
                         new ContractorInvoiceDto()
                         {
-                            Id = 42,
-                            ContractorInvRef = "20",
-                            ContractorInvDate = new DateTime(2007,6,4),
-                            DaysBilled = 5,
-                            ContractorInvNote = ""
+                            Id = 2186,
+                            ContractorInvRef = "170526",
+                            ContractorInvDate = new DateTime(2017,5,26),
+                            ContractorInvNote = "",
+                            Expenses = new List<ExpenseDto>()
+                            {
+                                new ExpenseDto()
+                                {
+                                    ExpenseDate = new DateTime(2017,5,24),
+                                    ExpenseAmount = 352.37,
+                                    ExpenseHeaderId = 2,
+                                    ForeignAmount =  371.52,
+                                    CurrencyId = 1,
+                                    ExpenseNote = "Commercial Hotel Hamilton (Sudima Hotel)",
+                                    ProjectId = 62,
+                                    KeezzInvId = 1184,
+                                    GST = false,
+                                    OnBill = true
+                                },
+                                new ExpenseDto()
+                                {
+                                    ExpenseDate = new DateTime(2017,5,25),
+                                    ExpenseAmount = 441.54,
+                                    ExpenseHeaderId = 2,
+                                    ForeignAmount =  464.4,
+                                    CurrencyId = 1,
+                                    ExpenseNote = "Commercial Hotel Hamilton (Sudima Roussos)",
+                                    ProjectId = 62,
+                                    KeezzInvId = 1184,
+                                    GST = false,
+                                    OnBill = true
+                                },
+                                new ExpenseDto()
+                                {
+                                    ExpenseDate = new DateTime(2017,5,22),
+                                    ExpenseAmount = 477.69,
+                                    ExpenseHeaderId = 2,
+                                    ForeignAmount =  505.38,
+                                    CurrencyId = 1,
+                                    ExpenseNote = "Quest Hamilton",
+                                    ProjectId = 62,
+                                    KeezzInvId = 1182,
+                                    GST = false,
+                                    OnBill = true
+                                }
+                            }
                         },
                         new ContractorInvoiceDto()
                         {
-                            Id = 44,
+                            Id = 2187,
                             ContractorInvRef = "21",
                             ContractorInvDate = new DateTime(2007,6,27),
                             DaysBilled = 4,
-                            ContractorInvNote = ""
+                            ContractorInvNote = "",
+                            Expenses = new List<ExpenseDto>()
+                            {
+                                new ExpenseDto()
+                                {
+                                    ExpenseDate = new DateTime(2017,5,24),
+                                    ExpenseAmount = 352.37,
+                                    ExpenseHeaderId = 2,
+                                    ForeignAmount =  371.52,
+                                    CurrencyId = 1,
+                                    ExpenseNote = "Commercial Hotel Hamilton (Sudima Hotel)",
+                                    ProjectId = 62,
+                                    KeezzInvId = 1184,
+                                    GST = false,
+                                    OnBill = true
+                                },
+                                new ExpenseDto()
+                                {
+                                    ExpenseDate = new DateTime(2017,5,25),
+                                    ExpenseAmount = 441.54,
+                                    ExpenseHeaderId = 2,
+                                    ForeignAmount =  464.4,
+                                    CurrencyId = 1,
+                                    ExpenseNote = "Commercial Hotel Hamilton (Sudima Roussos)",
+                                    ProjectId = 62,
+                                    KeezzInvId = 1184,
+                                    GST = false,
+                                    OnBill = true
+                                },
+                                new ExpenseDto()
+                                {
+                                    ExpenseDate = new DateTime(2017,5,22),
+                                    ExpenseAmount = 477.69,
+                                    ExpenseHeaderId = 2,
+                                    ForeignAmount =  505.38,
+                                    CurrencyId = 1,
+                                    ExpenseNote = "Quest Hamilton",
+                                    ProjectId = 62,
+                                    KeezzInvId = 1182,
+                                    GST = false,
+                                    OnBill = true
+                                }
+                            }
                         },
                         new ContractorInvoiceDto()
                         {

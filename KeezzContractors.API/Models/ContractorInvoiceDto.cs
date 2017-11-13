@@ -12,5 +12,8 @@ namespace KeezzContractors.API.Models
         public DateTime ContractorInvDate { get; set; }
         public int DaysBilled { get; set; }
         public string ContractorInvNote { get; set; }
+
+        public ICollection<ExpenseDto> Expenses { get; set; }
+            = new List<ExpenseDto>();
     }
 }
