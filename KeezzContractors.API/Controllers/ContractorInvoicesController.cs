@@ -1,5 +1,6 @@
 ﻿using KeezzContractors.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +11,33 @@ namespace KeezzContractors.API.Controllers
     [Route("api/contractors/{contractorId}/contractorinvoices")]
     public class ContractorInvoicesController : Controller
     {
+        private ILogger<ContractorInvoicesController> _logger;
+
+        public ContractorInvoicesController(ILogger<ContractorInvoicesController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet("")]
         public IActionResult GetContractorInvoices(int contractorId)
         {
-            var contractor =
-                ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-            if (contractor == null) return NotFound();
+            try
+            {
+                var contractor = 
+                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
+                if (contractor == null)
+                {
+                    _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoices.");
+                    return NotFound();
+                }
 
-            return Ok(contractor.ContractorInvoices);
+                return Ok(contractor.ContractorInvoices);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exception while getting invoices for contractor with id {contractorId}.",ex);
+                return StatusCode(500, "Exception thrown");
+            }
         }
 
         [HttpGet("{id}", Name = "GetContractorInvoice")]
