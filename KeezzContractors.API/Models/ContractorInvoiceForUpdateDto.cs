@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KeezzContractors.API.Models
 {
-    public class ContractorInvoiceForCreationDto
+    public class ContractorInvoiceForUpdateDto
     {
         [Required(ErrorMessage = "You must provide an invoice reference.")]
         [MaxLength(20)]
@@ -14,14 +14,10 @@ namespace KeezzContractors.API.Models
 
         public DateTime ContractorInvDate { get; set; }
 
-        [Range(0,14)]
+        [Range(0, 7)]
         public int DaysBilled { get; set; }
 
         [MaxLength(200)]
-        public string ContractorInvNote { get; set; }
-
-        public ICollection<ExpenseDto> Expenses { get; set; }
-            = new List<ExpenseDto>();
-
+        public string ContractorInvNote { get; set; } = null;
     }
 }

@@ -59,6 +59,8 @@ namespace KeezzContractors.API.Controllers
         {
             if (contractorInvoice == null) return BadRequest();
 
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             var contractor =
                 ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
             if (contractor == null) return NotFound();
@@ -80,6 +82,29 @@ namespace KeezzContractors.API.Controllers
                 id = finalContractorInvoice.Id
             }, 
             finalContractorInvoice);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateContractorInvoice(int contractorId, int id,
+            [FromBody] ContractorInvoiceForUpdateDto contractorInvoice)
+        {
+            if (contractorInvoice == null) return BadRequest();
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var contractor =
+                ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
+            if (contractor == null) return NotFound();
+
+            var contractorInvoiceFromStore = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
+            if (contractorInvoiceFromStore == null) return NotFound();
+
+            contractorInvoiceFromStore.ContractorInvRef = contractorInvoice.ContractorInvRef;
+            contractorInvoiceFromStore.ContractorInvDate = contractorInvoice.ContractorInvDate;
+            contractorInvoiceFromStore.DaysBilled = contractorInvoice.DaysBilled;
+            contractorInvoiceFromStore.ContractorInvNote = contractorInvoice.ContractorInvNote;
+
+            return NoContent();
         }
     }
 }
