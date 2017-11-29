@@ -23,7 +23,7 @@ namespace KeezzContractors.API.Controllers
         {
             try
             {
-                var contractor = 
+                var contractor =
                     ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
                 if (contractor == null)
                 {
@@ -35,7 +35,7 @@ namespace KeezzContractors.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogCritical($"Exception while getting invoices for contractor with id {contractorId}.",ex);
+                _logger.LogCritical($"Exception while getting invoices for contractor with id {contractorId}.", ex);
                 return StatusCode(500, "Exception thrown");
             }
         }
@@ -43,68 +43,114 @@ namespace KeezzContractors.API.Controllers
         [HttpGet("{id}", Name = "GetContractorInvoice")]
         public IActionResult GetContractorInvoice(int contractorId, int id)
         {
-            var contractor =
-                ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-            if (contractor == null) return NotFound();
+            try
+            {
+                var contractor =
+                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
+                if (contractor == null)
+                {
+                    _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoice with id {id}");
+                    return NotFound();
+                }
 
-            var contractorInvoice = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
-            if (contractorInvoice == null) return NotFound();
+                var contractorInvoice = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
+                if (contractorInvoice == null) return NotFound();
 
-            return Ok(contractorInvoice);
+                return Ok(contractorInvoice);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exception while getting invoice with id {id} for contractor with id {contractorId}.", ex);
+                return StatusCode(500, "Exception thrown");
+            }
         }
 
         [HttpPost("")]
         public IActionResult CreateContractorInvoice(int contractorId,
             [FromBody] ContractorInvoiceForCreationDto contractorInvoice)
         {
-            if (contractorInvoice == null) return BadRequest();
-
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var contractor =
-                ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-            if (contractor == null) return NotFound();
-
-            var finalContractorInvoice = new ContractorInvoiceDto()
+            try
             {
-                Id = 999999,
-                ContractorInvDate = contractorInvoice.ContractorInvDate,
-                ContractorInvRef = contractorInvoice.ContractorInvRef,
-                DaysBilled = contractorInvoice.DaysBilled,
-                ContractorInvNote = contractorInvoice.ContractorInvNote
-            };
+                if (contractorInvoice == null)
+                {
+                    _logger.LogInformation($"Contractor invoice body for contractor with id {contractorId} not parsed when creating contractor invoices.");
+                    return BadRequest();
+                }
 
-            contractor.ContractorInvoices.Add(finalContractorInvoice);
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            return CreatedAtRoute("GetContractorInvoice", new
+                var contractor =
+                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
+                if (contractor == null)
+                {
+                    _logger.LogInformation($"Contractor with id {contractorId} not found when creating contractor invoices.");
+                    return NotFound();
+                }
+
+
+                var finalContractorInvoice = new ContractorInvoiceDto()
+                {
+                    Id = 999999,
+                    ContractorInvDate = contractorInvoice.ContractorInvDate,
+                    ContractorInvRef = contractorInvoice.ContractorInvRef,
+                    DaysBilled = contractorInvoice.DaysBilled,
+                    ContractorInvNote = contractorInvoice.ContractorInvNote
+                };
+
+                contractor.ContractorInvoices.Add(finalContractorInvoice);
+
+                return CreatedAtRoute("GetContractorInvoice", new
+                {
+                    contractorId = contractorId,
+                    id = finalContractorInvoice.Id
+                },
+                finalContractorInvoice);
+
+            }
+            catch
             {
-                contractorId = contractorId,
-                id = finalContractorInvoice.Id
-            }, 
-            finalContractorInvoice);
+                _logger.LogCritical($"Exception while creating invoice for contractor with id {contractorId}.", ex);
+                return StatusCode(500, "Exception thrown");
+            }
         }
 
         [HttpPut("{id}")]
         public IActionResult UpdateContractorInvoice(int contractorId, int id,
             [FromBody] ContractorInvoiceForUpdateDto contractorInvoice)
         {
-            if (contractorInvoice == null) return BadRequest();
+            try
+            {
+                if (contractorInvoice == null)
+                {
+                    _logger.LogInformation($"Contractor invoice with id {id} not found when updating.");
+                    return BadRequest();
+                }
 
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogInformation($"Model state invalid when updating contractor invoice.");
+                    return BadRequest(ModelState);
+                }
 
-            var contractor =
-                ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-            if (contractor == null) return NotFound();
+                var contractor =
+                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
+                if (contractor == null) return NotFound();
 
-            var contractorInvoiceFromStore = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
-            if (contractorInvoiceFromStore == null) return NotFound();
+                var contractorInvoiceFromStore = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
+                if (contractorInvoiceFromStore == null) return NotFound();
 
-            contractorInvoiceFromStore.ContractorInvRef = contractorInvoice.ContractorInvRef;
-            contractorInvoiceFromStore.ContractorInvDate = contractorInvoice.ContractorInvDate;
-            contractorInvoiceFromStore.DaysBilled = contractorInvoice.DaysBilled;
-            contractorInvoiceFromStore.ContractorInvNote = contractorInvoice.ContractorInvNote;
+                contractorInvoiceFromStore.ContractorInvRef = contractorInvoice.ContractorInvRef;
+                contractorInvoiceFromStore.ContractorInvDate = contractorInvoice.ContractorInvDate;
+                contractorInvoiceFromStore.DaysBilled = contractorInvoice.DaysBilled;
+                contractorInvoiceFromStore.ContractorInvNote = contractorInvoice.ContractorInvNote;
 
-            return NoContent();
+                return NoContent();
+            }
+            catch
+            {
+                _logger.LogCritical($"Exception while updating invoice with id {id} for contractor with id {contractorId}.", ex);
+                return StatusCode(500, "Exception thrown");
+            }
         }
     }
 }
