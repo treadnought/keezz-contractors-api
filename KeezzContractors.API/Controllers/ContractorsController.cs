@@ -40,6 +40,8 @@ namespace KeezzContractors.API.Controllers
                 Inactive = contractor.Inactive
             };
 
+            ContractorsDataStore.Current.Contractors.Add(finalContractor);
+
             return CreatedAtRoute("GetContractor", new { id = finalContractor.Id }, finalContractor);
         }
     }
