@@ -107,7 +107,7 @@ namespace KeezzContractors.API.Controllers
                 finalContractorInvoice);
 
             }
-            catch
+            catch(Exception ex)
             {
                 _logger.LogCritical($"Exception while creating invoice for contractor with id {contractorId}.", ex);
                 return StatusCode(500, "Exception thrown");
@@ -146,7 +146,7 @@ namespace KeezzContractors.API.Controllers
 
                 return NoContent();
             }
-            catch
+            catch(Exception ex)
             {
                 _logger.LogCritical($"Exception while updating invoice with id {id} for contractor with id {contractorId}.", ex);
                 return StatusCode(500, "Exception thrown");
