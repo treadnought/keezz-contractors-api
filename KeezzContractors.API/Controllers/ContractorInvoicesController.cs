@@ -224,6 +224,14 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest(ModelState);
                 }
 
+                TryValidateModel(contractorInvoiceToPatch);
+
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogInformation($"Validation error when partially updating contractor invoice with id {id} for contractor with id {contractorId}.");
+                    return BadRequest(ModelState);
+                }
+
                 contractorInvoiceFromStore.ContractorInvRef = contractorInvoiceToPatch.ContractorInvRef;
                 contractorInvoiceFromStore.ContractorInvDate = contractorInvoiceToPatch.ContractorInvDate;
                 contractorInvoiceFromStore.ContractorInvNote = contractorInvoiceToPatch.ContractorInvNote;
@@ -235,6 +243,29 @@ namespace KeezzContractors.API.Controllers
                 _logger.LogCritical($"Exception while partially updating invoice with id {id} for contractor with id {contractorId}.", ex);
                 return StatusCode(500, "Exception thrown");
             }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteContractorInvoice(int contractorId, int id)
+        {
+            var contractor = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
+
+            if (contractor == null)
+            {
+                _logger.LogInformation($"Contractor with id {id} not found when deleting contractor invoice.");
+                return NotFound();
+            }
+
+            var contractorInvoiceFromStore = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
+            if (contractorInvoiceFromStore == null)
+            {
+                _logger.LogInformation($"Contractor invoice with id {id} for contractor with id {contractorId} not found when deleting.");
+                return NotFound();
+            }
+
+            contractor.ContractorInvoices.Remove(contractorInvoiceFromStore);
+
+            return NoContent();
         }
     }
 }
