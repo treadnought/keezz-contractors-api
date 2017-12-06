@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using KeezzContractors.API.Services;
 using Microsoft.Extensions.Configuration;
+using KeezzContractors.API.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace KeezzContractors.API
 {
@@ -27,6 +29,9 @@ namespace KeezzContractors.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            var connectionString = @"Server=(localdb)\mssqllocaldb;Database=KeezzContractorsDB;Trusted_Connection=true;";
+            services.AddDbContext<KeezzContractorsContext>(o => o.UseSqlServer(connectionString));
 
 #if DEBUG
             services.AddTransient<IMailService, LocalMailService>();

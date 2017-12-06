@@ -33,5 +33,6 @@ namespace KeezzContractors.API.Entities
 
         [ForeignKey("ContractorInvoiceId")]
         public ContractorInvoice ContractorInvoice { get; set; }
+        public int ContractorInvoiceId { get; set; }
     }
 }
