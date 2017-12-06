@@ -33,6 +33,8 @@ namespace KeezzContractors.API
             var connectionString = Startup.Configuration["connectionStrings:keezzContractorsDBConnectionString"];
             services.AddDbContext<KeezzContractorsContext>(o => o.UseSqlServer(connectionString));
 
+            services.AddScoped<IKeezzContractorsRepository, KeezzContractorsRepository>();
+
 #if DEBUG
             services.AddTransient<IMailService, LocalMailService>();
 #else
@@ -55,7 +57,7 @@ namespace KeezzContractors.API
                 app.UseExceptionHandler();
             }
 
-            //keezzContractorsContext.EnsureSeedDataForContext();
+            keezzContractorsContext.EnsureSeedDataForContext();
 
             app.UseStatusCodePages();
 
