@@ -31,6 +31,7 @@ namespace KeezzContractors.API.Entities
         public bool GST { get; set; } = true;
         public bool OnBill { get; set; } = false;
 
+        [ForeignKey("ContractorInvoiceId")]
         public ContractorInvoice ContractorInvoice { get; set; }
     }
 }
