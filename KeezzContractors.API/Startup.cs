@@ -30,7 +30,7 @@ namespace KeezzContractors.API
         {
             services.AddMvc();
 
-            var connectionString = @"Server=(localdb)\mssqllocaldb;Database=KeezzContractorsDB;Trusted_Connection=true;";
+            var connectionString = Startup.Configuration["connectionStrings:keezzContractorsDBConnectionString"];
             services.AddDbContext<KeezzContractorsContext>(o => o.UseSqlServer(connectionString));
 
 #if DEBUG
@@ -41,7 +41,8 @@ namespace KeezzContractors.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
+            KeezzContractorsContext keezzContractorsContext)
         {
             loggerFactory.AddNLog();
 
@@ -53,6 +54,8 @@ namespace KeezzContractors.API
             {
                 app.UseExceptionHandler();
             }
+
+            //keezzContractorsContext.EnsureSeedDataForContext();
 
             app.UseStatusCodePages();
 
