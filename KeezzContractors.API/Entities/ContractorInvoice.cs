@@ -16,6 +16,8 @@ namespace KeezzContractors.API.Entities
         [Required]
         [MaxLength(20)]
         public string ContractorInvRef { get; set; }
+
+        [Required]
         public DateTime ContractorInvDate { get; set; }
 
         [Range(0,7)]
