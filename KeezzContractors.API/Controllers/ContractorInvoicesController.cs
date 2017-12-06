@@ -1,4 +1,5 @@
 ﻿using KeezzContractors.API.Models;
+using KeezzContractors.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,10 +13,12 @@ namespace KeezzContractors.API.Controllers
     [Route("api/contractors/{contractorId}/contractorinvoices")]
     public class ContractorInvoicesController : Controller
     {
+        private IMailService _mailService;
         private ILogger<ContractorInvoicesController> _logger;
 
-        public ContractorInvoicesController(ILogger<ContractorInvoicesController> logger)
+        public ContractorInvoicesController(IMailService mailService, ILogger<ContractorInvoicesController> logger)
         {
+            _mailService = mailService;
             _logger = logger;
         }
 
@@ -264,6 +267,7 @@ namespace KeezzContractors.API.Controllers
             }
 
             contractor.ContractorInvoices.Remove(contractorInvoiceFromStore);
+            _mailService.Send("Delete Delete", $"Contractor invoice with id {id} was deleted.");
 
             return NoContent();
         }
