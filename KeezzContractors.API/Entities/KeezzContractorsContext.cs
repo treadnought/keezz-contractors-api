@@ -10,7 +10,7 @@ namespace KeezzContractors.API.Entities
     {
         public KeezzContractorsContext(DbContextOptions<KeezzContractorsContext> options) : base(options)
         {
-
+            Database.Migrate();
         }
 
         public DbSet<Contractor> Contractors { get; set; }

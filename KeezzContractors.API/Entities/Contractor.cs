@@ -20,7 +20,10 @@ namespace KeezzContractors.API.Entities
         [Required]
         [MaxLength(20)]
         public string LastName { get; set; }
-        public bool Inactive { get; set; }
+        public bool Inactive { get; set; } = false;
+
+        [MaxLength(80)]
+        public string ContractorCompany { get; set; }
 
         public ICollection<ContractorInvoice> ContractorInvoices { get; set; }
             = new List<ContractorInvoice>();

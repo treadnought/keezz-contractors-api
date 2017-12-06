@@ -10,6 +10,7 @@ namespace KeezzContractors.API.Models
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string ContractorCompany { get; set; }
         public bool Inactive { get; set; }
 
         public int NumberOfInvoices { get

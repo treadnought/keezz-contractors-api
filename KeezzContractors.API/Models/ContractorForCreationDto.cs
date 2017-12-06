@@ -16,6 +16,9 @@ namespace KeezzContractors.API.Models
         [MaxLength(20)]
         public string LastName { get; set; }
 
+        [MaxLength(80)]
+        public string ContractorCompany { get; set; }
+
         public bool Inactive { get; set; } = false;
 
         public ICollection<ContractorInvoiceDto> ContractorInvoices { get; set; }
