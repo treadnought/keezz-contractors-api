@@ -35,12 +35,24 @@ namespace KeezzContractors.API.Services
 
         public IEnumerable<ContractorInvoice> GetContractorInvoices(int contractorId)
         {
-            return _context.ContractorInvoices.Where(i => i.ContractorId == contractorId).ToList();
+            return _context.ContractorInvoices.Where(i => i.ContractorId == contractorId)
+                .OrderBy(i => i.ContractorInvDate).ToList();
         }
 
         public IEnumerable<Contractor> GetContractors()
         {
             return _context.Contractors.OrderBy(c => c.LastName).ToList();
+        }
+
+        public Expense GetExpense(int contractorInvoiceId, int expenseId)
+        {
+            return _context.Expenses
+                .Where(e => e.ContractorInvoiceId == contractorInvoiceId && e.Id == expenseId).FirstOrDefault();
+        }
+
+        public IEnumerable<Expense> GetExpenses(int contractorInvoiceId)
+        {
+            return _context.Expenses.Where(e => e.ContractorInvoiceId == contractorInvoiceId).ToList();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using KeezzContractors.API.Models;
+using KeezzContractors.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,10 +12,12 @@ namespace KeezzContractors.API.Controllers
     [Route("api/contractors")]
     public class ContractorsController : Controller
     {
+        private IKeezzContractorsRepository _repository;
         private ILogger<ContractorsController> _logger;
 
-        public ContractorsController(ILogger<ContractorsController> logger)
+        public ContractorsController(IKeezzContractorsRepository repository, ILogger<ContractorsController> logger)
         {
+            _repository = repository;
             _logger = logger;
         }
 

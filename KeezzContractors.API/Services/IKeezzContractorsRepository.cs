@@ -12,5 +12,7 @@ namespace KeezzContractors.API.Services
         Contractor GetContractor(int contractorId, bool includeContractorInvoices);
         IEnumerable<ContractorInvoice> GetContractorInvoices(int contractorId);
         ContractorInvoice GetContractorInvoice(int contractorId, int contractorInvoiceId);
+        IEnumerable<Expense> GetExpenses(int contractorInvoiceId);
+        Expense GetExpense(int contractorInvoiceId, int expenseId);
     }
 }
