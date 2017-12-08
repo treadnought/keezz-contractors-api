@@ -26,7 +26,24 @@ namespace KeezzContractors.API.Controllers
         {
             try
             {
-                return Ok(ContractorsDataStore.Current.Contractors);
+                //return Ok(ContractorsDataStore.Current.Contractors);
+                var contractorEntities =_repository.GetContractors();
+
+                var results = new List<ContractorWithoutInvoicesDto>();
+
+                foreach (var contractorEntity in contractorEntities)
+                {
+                    results.Add(new ContractorWithoutInvoicesDto
+                    {
+                        Id = contractorEntity.Id,
+                        FirstName = contractorEntity.FirstName,
+                        LastName = contractorEntity.LastName,
+                        ContractorCompany = contractorEntity.ContractorCompany,
+                        Inactive = contractorEntity.Inactive
+                    });
+                }
+
+                return Ok(results);
             }
             catch(Exception ex)
             {
