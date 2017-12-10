@@ -16,6 +16,16 @@ namespace KeezzContractors.API.Services
             _context = context;
         }
 
+        public bool ContractorExists(int contractorId)
+        {
+            return _context.Contractors.Any(c => c.Id == contractorId);
+        }
+
+        public bool ContractorInvoiceExists(int contractorInvoiceId)
+        {
+            return _context.ContractorInvoices.Any(i => i.Id == contractorInvoiceId);
+        }
+
         public Contractor GetContractor(int contractorId, bool includeContractorInvoices)
         {
             if (includeContractorInvoices)

@@ -13,11 +13,16 @@ namespace KeezzContractors.API.Controllers
     [Route("api/contractors/{contractorId}/contractorinvoices")]
     public class ContractorInvoicesController : Controller
     {
+        private IKeezzContractorsRepository _repository;
         private IMailService _mailService;
         private ILogger<ContractorInvoicesController> _logger;
 
-        public ContractorInvoicesController(IMailService mailService, ILogger<ContractorInvoicesController> logger)
+        public ContractorInvoicesController(
+            IKeezzContractorsRepository repository, 
+            IMailService mailService, 
+            ILogger<ContractorInvoicesController> logger)
         {
+            _repository = repository;
             _mailService = mailService;
             _logger = logger;
         }
@@ -27,15 +32,33 @@ namespace KeezzContractors.API.Controllers
         {
             try
             {
-                var contractor =
-                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-                if (contractor == null)
+                //var contractor =
+                //    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
+
+                if (!_repository.ContractorExists(contractorId))
                 {
                     _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoices.");
                     return NotFound();
                 }
 
-                return Ok(contractor.ContractorInvoices);
+                var contractorInvoices = _repository.GetContractorInvoices(contractorId);
+
+                var contractorInvoicesResults = new List<ContractorInvoiceDto>();
+                foreach (var inv in contractorInvoices)
+                {
+                    contractorInvoicesResults.Add(new ContractorInvoiceDto()
+                    {
+                        Id = inv.Id,
+                        ContractorInvRef = inv.ContractorInvRef,
+                        ContractorInvDate = inv.ContractorInvDate,
+                        DaysBilled = inv.DaysBilled,
+                        ContractorInvNote = inv.ContractorInvNote
+                    });
+                }
+
+                return Ok(contractorInvoicesResults);
+
+                //return Ok(contractor.ContractorInvoices);
             }
             catch (Exception ex)
             {
@@ -49,18 +72,43 @@ namespace KeezzContractors.API.Controllers
         {
             try
             {
-                var contractor =
-                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-                if (contractor == null)
+                if (!_repository.ContractorExists(contractorId))
                 {
-                    _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoice with id {id}");
+                    _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoice.");
                     return NotFound();
                 }
 
-                var contractorInvoice = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
-                if (contractorInvoice == null) return NotFound();
+                var contractorInvoice = _repository.GetContractorInvoice(contractorId, id);
 
-                return Ok(contractorInvoice);
+                if (contractorInvoice == null)
+                {
+                    _logger.LogInformation($"Contractor invoice with id {id} not found.");
+                    return NotFound();
+                }
+
+                var contractorInvoiceResult = new ContractorInvoiceDto()
+                {
+                    Id = contractorInvoice.Id,
+                    ContractorInvRef = contractorInvoice.ContractorInvRef,
+                    ContractorInvDate = contractorInvoice.ContractorInvDate,
+                    DaysBilled = contractorInvoice.DaysBilled,
+                    ContractorInvNote = contractorInvoice.ContractorInvNote
+                };
+
+                return Ok(contractorInvoiceResult);
+
+                //var contractor =
+                //    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
+                //if (contractor == null)
+                //{
+                //    _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoice with id {id}");
+                //    return NotFound();
+                //}
+
+                //var contractorInvoice = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
+                //if (contractorInvoice == null) return NotFound();
+
+                //return Ok(contractorInvoice);
             }
             catch (Exception ex)
             {

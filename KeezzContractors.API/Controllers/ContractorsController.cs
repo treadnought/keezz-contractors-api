@@ -53,18 +53,63 @@ namespace KeezzContractors.API.Controllers
         }
 
         [HttpGet("{id}", Name = "GetContractor")]
-        public IActionResult GetContractor(int id)
+        public IActionResult GetContractor(int id, bool includeInvoices = false)
         {
             try
             {
-                var contractorToReturn = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == id);
-                if (contractorToReturn == null)
+                var contractor = _repository.GetContractor(id, includeInvoices);
+
+                if (contractor == null)
                 {
-                    _logger.LogInformation($"Contractor with id {id} not found.");
+                    _logger.LogInformation($"Contractor with id {id} not found when getting contractor.");
                     return NotFound();
                 }
 
-                return Ok(contractorToReturn);
+                if (includeInvoices)
+                {
+                    var contractorResult = new ContractorDto()
+                    {
+                        Id = contractor.Id,
+                        FirstName = contractor.FirstName,
+                        LastName = contractor.LastName,
+                        ContractorCompany = contractor.ContractorCompany
+                    };
+
+                    foreach (var inv in contractor.ContractorInvoices)
+                    {
+                        contractorResult.ContractorInvoices.Add(
+                            new ContractorInvoiceDto()
+                            {
+                                Id = inv.Id,
+                                ContractorInvRef = inv.ContractorInvRef,
+                                ContractorInvDate = inv.ContractorInvDate,
+                                ContractorInvNote =  inv.ContractorInvNote
+                            });
+                    }
+
+                    return Ok(contractorResult);
+                }
+
+                var contractorWithoutInvoicesResult =
+                    new ContractorWithoutInvoicesDto()
+                    {
+                        Id = contractor.Id,
+                        FirstName = contractor.FirstName,
+                        LastName = contractor.LastName,
+                        ContractorCompany = contractor.ContractorCompany,
+                        Inactive = contractor.Inactive
+                    };
+
+                return Ok(contractorWithoutInvoicesResult);
+
+                //var contractorToReturn = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == id);
+                //if (contractorToReturn == null)
+                //{
+                //    _logger.LogInformation($"Contractor with id {id} not found.");
+                //    return NotFound();
+                //}
+
+                //return Ok(contractorToReturn);
             }
             catch(Exception ex)
             {

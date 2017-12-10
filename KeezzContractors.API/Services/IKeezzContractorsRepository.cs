@@ -8,6 +8,8 @@ namespace KeezzContractors.API.Services
 {
     public interface IKeezzContractorsRepository
     {
+        bool ContractorExists(int contractorId);
+        bool ContractorInvoiceExists(int contractorInvoiceId);
         IEnumerable<Contractor>GetContractors();
         Contractor GetContractor(int contractorId, bool includeContractorInvoices);
         IEnumerable<ContractorInvoice> GetContractorInvoices(int contractorId);
