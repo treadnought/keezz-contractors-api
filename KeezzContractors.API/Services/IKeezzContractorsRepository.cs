@@ -18,6 +18,7 @@ namespace KeezzContractors.API.Services
         Expense GetExpense(int contractorInvoiceId, int expenseId);
         void AddInvoice(int contractorId, ContractorInvoice contractorInvoice);
         void AddExpense(int contractorInvoiceId, Expense expense);
+        void DeleteInvoice(ContractorInvoice contractorInvoice);
         bool Save();
     }
 }

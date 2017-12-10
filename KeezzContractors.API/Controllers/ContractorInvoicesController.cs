@@ -181,7 +181,7 @@ namespace KeezzContractors.API.Controllers
 
                 if (!_repository.Save())
                 {
-                    return StatusCode(500, "Could not save invoice.");
+                    return StatusCode(500, "Could not update invoice.");
                 }
 
                 return NoContent();
@@ -205,9 +205,7 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest();
                 }
 
-                var contractor =
-                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-                if (contractor == null)
+                if (!_repository.ContractorExists(contractorId))
                 {
                     _logger.LogInformation($"Contractor with id {contractorId} not found when partially updating contractor invoice with id {id}");
                     return NotFound();
@@ -219,20 +217,14 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var contractorInvoiceFromStore = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
-                if (contractorInvoiceFromStore == null)
+                var contractorInvoiceEntity = _repository.GetContractorInvoice(id);
+                if (contractorInvoiceEntity == null)
                 {
-                    _logger.LogInformation($"Contractor invoice with id {id} for contractor with id {contractorId} not found when partially updating.");
+                    _logger.LogInformation($"Contractor invoice with id {id} not found when partially updating contractor invoice with id {id}");
                     return NotFound();
                 }
 
-                var contractorInvoiceToPatch =
-                    new ContractorInvoiceForUpdateDto()
-                    {
-                        ContractorInvRef = contractorInvoiceFromStore.ContractorInvRef,
-                        ContractorInvDate = contractorInvoiceFromStore.ContractorInvDate,
-                        ContractorInvNote = contractorInvoiceFromStore.ContractorInvNote
-                    };
+                var contractorInvoiceToPatch = Mapper.Map<ContractorInvoiceForUpdateDto>(contractorInvoiceEntity);
 
                 patchDoc.ApplyTo(contractorInvoiceToPatch, ModelState);
 
@@ -250,9 +242,13 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                contractorInvoiceFromStore.ContractorInvRef = contractorInvoiceToPatch.ContractorInvRef;
-                contractorInvoiceFromStore.ContractorInvDate = contractorInvoiceToPatch.ContractorInvDate;
-                contractorInvoiceFromStore.ContractorInvNote = contractorInvoiceToPatch.ContractorInvNote;
+                // replace entity values with those of patched object
+                Mapper.Map(contractorInvoiceToPatch, contractorInvoiceEntity);
+
+                if (!_repository.Save())
+                {
+                    return StatusCode(500, "Could not update invoice.");
+                }
 
                 return NoContent();
             }
@@ -266,22 +262,26 @@ namespace KeezzContractors.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteContractorInvoice(int contractorId, int id)
         {
-            var contractor = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-
-            if (contractor == null)
+            if (!_repository.ContractorExists(contractorId))
             {
                 _logger.LogInformation($"Contractor with id {id} not found when deleting contractor invoice.");
                 return NotFound();
             }
 
-            var contractorInvoiceFromStore = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
-            if (contractorInvoiceFromStore == null)
+            var contractorInvoiceEntity = _repository.GetContractorInvoice(id);
+            if( contractorInvoiceEntity == null)
             {
                 _logger.LogInformation($"Contractor invoice with id {id} for contractor with id {contractorId} not found when deleting.");
                 return NotFound();
             }
 
-            contractor.ContractorInvoices.Remove(contractorInvoiceFromStore);
+            _repository.DeleteInvoice(contractorInvoiceEntity);
+
+            if (!_repository.Save())
+            {
+                return StatusCode(500, "Could not delete invoice.");
+            }
+
             _mailService.Send("Delete Delete", $"Contractor invoice with id {id} was deleted.");
 
             return NoContent();

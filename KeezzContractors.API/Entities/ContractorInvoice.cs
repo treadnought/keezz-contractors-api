@@ -20,7 +20,7 @@ namespace KeezzContractors.API.Entities
         [Required]
         public DateTime ContractorInvDate { get; set; }
 
-        [Range(0,7)]
+        [Range(0,14)]
         public int DaysBilled { get; set; }
 
         [MaxLength(200)]

@@ -39,6 +39,11 @@ namespace KeezzContractors.API.Services
             return _context.ContractorInvoices.Any(i => i.Id == contractorInvoiceId);
         }
 
+        public void DeleteInvoice(ContractorInvoice contractorInvoice)
+        {
+            _context.ContractorInvoices.Remove(contractorInvoice);
+        }
+
         public Contractor GetContractor(int contractorId, bool includeContractorInvoices = false)
         {
             if (includeContractorInvoices)
