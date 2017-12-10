@@ -148,22 +148,20 @@ namespace KeezzContractors.API.Controllers
             {
                 if (contractorInvoice == null)
                 {
-                    _logger.LogInformation($"Contractor invoice body for contractor with id {contractorId} not parsed when fully updating contractor invoice.");
+                    _logger.LogInformation($"Contractor invoice body for contractor invoice with id {id} not parsed when fully updating contractor invoice.");
                     return BadRequest();
                 }
 
-                var contractor =
-                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-                if (contractor == null)
+                if (!_repository.ContractorExists(contractorId))
                 {
                     _logger.LogInformation($"Contractor with id {contractorId} not found when fully updating contractor invoice with id {id}");
                     return NotFound();
                 }
 
-                if (contractor.ContractorInvoices.Any(i => i.ContractorInvRef == contractorInvoice.ContractorInvRef))
-                {
-                    ModelState.AddModelError("ContractorInvRef", $"Contractor Inv Ref {contractorInvoice.ContractorInvRef} for contractor {contractorId} is already in use");
-                }
+                //if (contractor.ContractorInvoices.Any(i => i.ContractorInvRef == contractorInvoice.ContractorInvRef))
+                //{
+                //    ModelState.AddModelError("ContractorInvRef", $"Contractor Inv Ref {contractorInvoice.ContractorInvRef} for contractor {contractorId} is already in use");
+                //}
 
                 if (!ModelState.IsValid)
                 {
@@ -171,17 +169,20 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var contractorInvoiceFromStore = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
-                if (contractorInvoiceFromStore == null)
+                var contractorInvoiceEntity = _repository.GetContractorInvoice(id);
+                if (contractorInvoiceEntity == null)
                 {
                     _logger.LogInformation($"Contractor invoice with id {id} for contractor with id {contractorId} not found when fully updating.");
                     return NotFound();
                 }
 
-                contractorInvoiceFromStore.ContractorInvRef = contractorInvoice.ContractorInvRef;
-                contractorInvoiceFromStore.ContractorInvDate = contractorInvoice.ContractorInvDate;
-                contractorInvoiceFromStore.DaysBilled = contractorInvoice.DaysBilled;
-                contractorInvoiceFromStore.ContractorInvNote = contractorInvoice.ContractorInvNote;
+                // replace entity values with those of passed in object
+                Mapper.Map(contractorInvoice, contractorInvoiceEntity);
+
+                if (!_repository.Save())
+                {
+                    return StatusCode(500, "Could not save invoice.");
+                }
 
                 return NoContent();
             }
