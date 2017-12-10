@@ -17,6 +17,11 @@ namespace KeezzContractors.API.Services
             _context = context;
         }
 
+        public void AddContractor(Contractor contractor)
+        {
+            _context.Contractors.Add(contractor);
+        }
+
         public void AddExpense(int contractorInvoiceId, Expense expense)
         {
             var contractorInvoice = GetContractorInvoice(contractorInvoiceId);

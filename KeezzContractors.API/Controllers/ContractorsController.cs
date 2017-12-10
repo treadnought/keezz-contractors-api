@@ -88,17 +88,19 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest();
                 }
 
-                var finalContractor = new ContractorDto()
+                var finalContractor = Mapper.Map<Entities.Contractor>(contractor);
+
+                _repository.AddContractor(finalContractor);
+
+                if (!_repository.Save())
                 {
-                    Id = 9999,
-                    FirstName = contractor.FirstName,
-                    LastName = contractor.LastName,
-                    Inactive = contractor.Inactive
-                };
+                    _logger.LogInformation("Could not add contractor.");
+                    return StatusCode(500, "Could not add contractor.");
+                }
 
-                ContractorsDataStore.Current.Contractors.Add(finalContractor);
+                var createdContractor = Mapper.Map<ContractorDto>(finalContractor);
 
-                return CreatedAtRoute("GetContractor", new { id = finalContractor.Id }, finalContractor);
+                return CreatedAtRoute("GetContractor", new { id = createdContractor.Id }, createdContractor);
             }
             catch(Exception ex)
             {
