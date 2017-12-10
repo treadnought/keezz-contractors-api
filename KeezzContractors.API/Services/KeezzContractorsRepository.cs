@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using KeezzContractors.API.Entities;
+using KeezzContractors.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace KeezzContractors.API.Services
@@ -16,6 +17,18 @@ namespace KeezzContractors.API.Services
             _context = context;
         }
 
+        public void AddExpense(int contractorInvoiceId, Expense expense)
+        {
+            var contractorInvoice = GetContractorInvoice(contractorInvoiceId);
+            contractorInvoice.Expenses.Add(expense);
+        }
+
+        public void AddInvoice(int contractorId, ContractorInvoice contractorInvoice)
+        {
+            var contractor = GetContractor(contractorId);
+            contractor.ContractorInvoices.Add(contractorInvoice);
+        }
+
         public bool ContractorExists(int contractorId)
         {
             return _context.Contractors.Any(c => c.Id == contractorId);
@@ -26,7 +39,7 @@ namespace KeezzContractors.API.Services
             return _context.ContractorInvoices.Any(i => i.Id == contractorInvoiceId);
         }
 
-        public Contractor GetContractor(int contractorId, bool includeContractorInvoices)
+        public Contractor GetContractor(int contractorId, bool includeContractorInvoices = false)
         {
             if (includeContractorInvoices)
             {
@@ -37,10 +50,9 @@ namespace KeezzContractors.API.Services
             return _context.Contractors.Where(c => c.Id == contractorId).FirstOrDefault();
         }
 
-        public ContractorInvoice GetContractorInvoice(int contractorId, int contractorInvoiceId)
+        public ContractorInvoice GetContractorInvoice(int contractorInvoiceId)
         {
-            return _context.ContractorInvoices
-                .Where(i => i.ContractorId == contractorId && i.Id == contractorInvoiceId).FirstOrDefault();
+            return _context.ContractorInvoices.Where(i => i.Id == contractorInvoiceId).FirstOrDefault();
         }
 
         public IEnumerable<ContractorInvoice> GetContractorInvoices(int contractorId)
@@ -63,6 +75,11 @@ namespace KeezzContractors.API.Services
         public IEnumerable<Expense> GetExpenses(int contractorInvoiceId)
         {
             return _context.Expenses.Where(e => e.ContractorInvoiceId == contractorInvoiceId).ToList();
+        }
+
+        public bool Save()
+        {
+            return (_context.SaveChanges() >= 0);
         }
     }
 }

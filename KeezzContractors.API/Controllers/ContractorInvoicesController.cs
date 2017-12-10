@@ -1,4 +1,5 @@
-﻿using KeezzContractors.API.Models;
+﻿using AutoMapper;
+using KeezzContractors.API.Models;
 using KeezzContractors.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -32,9 +33,6 @@ namespace KeezzContractors.API.Controllers
         {
             try
             {
-                //var contractor =
-                //    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-
                 if (!_repository.ContractorExists(contractorId))
                 {
                     _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoices.");
@@ -43,22 +41,9 @@ namespace KeezzContractors.API.Controllers
 
                 var contractorInvoices = _repository.GetContractorInvoices(contractorId);
 
-                var contractorInvoicesResults = new List<ContractorInvoiceDto>();
-                foreach (var inv in contractorInvoices)
-                {
-                    contractorInvoicesResults.Add(new ContractorInvoiceDto()
-                    {
-                        Id = inv.Id,
-                        ContractorInvRef = inv.ContractorInvRef,
-                        ContractorInvDate = inv.ContractorInvDate,
-                        DaysBilled = inv.DaysBilled,
-                        ContractorInvNote = inv.ContractorInvNote
-                    });
-                }
+                var contractorInvoicesResults = Mapper.Map<IEnumerable<ContractorInvoiceWithoutExpensesDto>>(contractorInvoices);
 
                 return Ok(contractorInvoicesResults);
-
-                //return Ok(contractor.ContractorInvoices);
             }
             catch (Exception ex)
             {
@@ -78,7 +63,7 @@ namespace KeezzContractors.API.Controllers
                     return NotFound();
                 }
 
-                var contractorInvoice = _repository.GetContractorInvoice(contractorId, id);
+                var contractorInvoice = _repository.GetContractorInvoice(id);
 
                 if (contractorInvoice == null)
                 {
@@ -86,29 +71,9 @@ namespace KeezzContractors.API.Controllers
                     return NotFound();
                 }
 
-                var contractorInvoiceResult = new ContractorInvoiceDto()
-                {
-                    Id = contractorInvoice.Id,
-                    ContractorInvRef = contractorInvoice.ContractorInvRef,
-                    ContractorInvDate = contractorInvoice.ContractorInvDate,
-                    DaysBilled = contractorInvoice.DaysBilled,
-                    ContractorInvNote = contractorInvoice.ContractorInvNote
-                };
+                var contractorInvoiceResult = Mapper.Map<ContractorInvoiceWithoutExpensesDto>(contractorInvoice);
 
                 return Ok(contractorInvoiceResult);
-
-                //var contractor =
-                //    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-                //if (contractor == null)
-                //{
-                //    _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoice with id {id}");
-                //    return NotFound();
-                //}
-
-                //var contractorInvoice = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == id);
-                //if (contractorInvoice == null) return NotFound();
-
-                //return Ok(contractorInvoice);
             }
             catch (Exception ex)
             {
@@ -129,13 +94,13 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest();
                 }
 
-                var contractor =
-                    ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-                if (contractor == null)
+                if (!_repository.ContractorExists(contractorId))
                 {
                     _logger.LogInformation($"Contractor with id {contractorId} not found when creating contractor invoices.");
                     return NotFound();
                 }
+
+                var contractor = _repository.GetContractor(contractorId);
 
                 if (contractor.ContractorInvoices.Any(i => i.ContractorInvRef == contractorInvoice.ContractorInvRef))
                 {
@@ -148,23 +113,24 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var finalContractorInvoice = new ContractorInvoiceDto()
-                {
-                    Id = 999999,
-                    ContractorInvDate = contractorInvoice.ContractorInvDate,
-                    ContractorInvRef = contractorInvoice.ContractorInvRef,
-                    DaysBilled = contractorInvoice.DaysBilled,
-                    ContractorInvNote = contractorInvoice.ContractorInvNote
-                };
+                var finalContractorInvoice = Mapper.Map<Entities.ContractorInvoice>(contractorInvoice);
 
-                contractor.ContractorInvoices.Add(finalContractorInvoice);
+                _repository.AddInvoice(contractorId, finalContractorInvoice);
+
+                if (!_repository.Save())
+                {
+                    _logger.LogInformation("Could not add invoice.");
+                    return StatusCode(500, "Could not add invoice.");
+                }
+
+                var createdInvoice = Mapper.Map<ContractorInvoiceDto>(finalContractorInvoice);
 
                 return CreatedAtRoute("GetContractorInvoice", new
                 {
                     contractorId = contractorId,
-                    id = finalContractorInvoice.Id
+                    id = createdInvoice.Id
                 },
-                finalContractorInvoice);
+                createdInvoice);
 
             }
             catch (Exception ex)

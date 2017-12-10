@@ -1,4 +1,5 @@
-﻿using KeezzContractors.API.Models;
+﻿using AutoMapper;
+using KeezzContractors.API.Models;
 using KeezzContractors.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -26,22 +27,9 @@ namespace KeezzContractors.API.Controllers
         {
             try
             {
-                //return Ok(ContractorsDataStore.Current.Contractors);
                 var contractorEntities =_repository.GetContractors();
 
-                var results = new List<ContractorWithoutInvoicesDto>();
-
-                foreach (var contractorEntity in contractorEntities)
-                {
-                    results.Add(new ContractorWithoutInvoicesDto
-                    {
-                        Id = contractorEntity.Id,
-                        FirstName = contractorEntity.FirstName,
-                        LastName = contractorEntity.LastName,
-                        ContractorCompany = contractorEntity.ContractorCompany,
-                        Inactive = contractorEntity.Inactive
-                    });
-                }
+                var results = Mapper.Map<IEnumerable<ContractorWithoutInvoicesDto>>(contractorEntities);
 
                 return Ok(results);
             }
@@ -67,49 +55,14 @@ namespace KeezzContractors.API.Controllers
 
                 if (includeInvoices)
                 {
-                    var contractorResult = new ContractorDto()
-                    {
-                        Id = contractor.Id,
-                        FirstName = contractor.FirstName,
-                        LastName = contractor.LastName,
-                        ContractorCompany = contractor.ContractorCompany
-                    };
-
-                    foreach (var inv in contractor.ContractorInvoices)
-                    {
-                        contractorResult.ContractorInvoices.Add(
-                            new ContractorInvoiceDto()
-                            {
-                                Id = inv.Id,
-                                ContractorInvRef = inv.ContractorInvRef,
-                                ContractorInvDate = inv.ContractorInvDate,
-                                ContractorInvNote =  inv.ContractorInvNote
-                            });
-                    }
+                    var contractorResult = Mapper.Map<ContractorDto>(contractor);
 
                     return Ok(contractorResult);
                 }
 
-                var contractorWithoutInvoicesResult =
-                    new ContractorWithoutInvoicesDto()
-                    {
-                        Id = contractor.Id,
-                        FirstName = contractor.FirstName,
-                        LastName = contractor.LastName,
-                        ContractorCompany = contractor.ContractorCompany,
-                        Inactive = contractor.Inactive
-                    };
+                var contractorWithoutInvoicesResult = Mapper.Map<ContractorWithoutInvoicesDto>(contractor);
 
                 return Ok(contractorWithoutInvoicesResult);
-
-                //var contractorToReturn = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == id);
-                //if (contractorToReturn == null)
-                //{
-                //    _logger.LogInformation($"Contractor with id {id} not found.");
-                //    return NotFound();
-                //}
-
-                //return Ok(contractorToReturn);
             }
             catch(Exception ex)
             {

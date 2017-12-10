@@ -11,10 +11,13 @@ namespace KeezzContractors.API.Services
         bool ContractorExists(int contractorId);
         bool ContractorInvoiceExists(int contractorInvoiceId);
         IEnumerable<Contractor>GetContractors();
-        Contractor GetContractor(int contractorId, bool includeContractorInvoices);
+        Contractor GetContractor(int contractorId, bool includeContractorInvoices = false);
         IEnumerable<ContractorInvoice> GetContractorInvoices(int contractorId);
-        ContractorInvoice GetContractorInvoice(int contractorId, int contractorInvoiceId);
+        ContractorInvoice GetContractorInvoice(int contractorInvoiceId);
         IEnumerable<Expense> GetExpenses(int contractorInvoiceId);
         Expense GetExpense(int contractorInvoiceId, int expenseId);
+        void AddInvoice(int contractorId, ContractorInvoice contractorInvoice);
+        void AddExpense(int contractorInvoiceId, Expense expense);
+        bool Save();
     }
 }
