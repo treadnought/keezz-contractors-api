@@ -68,6 +68,7 @@ namespace KeezzContractors.API
                 cfg.CreateMap<Entities.Contractor, Models.ContractorDto>().ReverseMap();
                 cfg.CreateMap<Entities.Contractor, Models.ContractorWithoutInvoicesDto>().ReverseMap();
                 cfg.CreateMap<Entities.Contractor, Models.ContractorForCreationDto>().ReverseMap();
+                cfg.CreateMap<Entities.Contractor, Models.ContractorForUpdateDto>().ReverseMap();
                 cfg.CreateMap<Entities.ContractorInvoice, Models.ContractorInvoiceForCreationDto>().ReverseMap();
                 cfg.CreateMap<Entities.ContractorInvoice, Models.ContractorInvoiceForUpdateDto>().ReverseMap();
                 cfg.CreateMap<Entities.Expense, Models.ExpenseDto>().ReverseMap();

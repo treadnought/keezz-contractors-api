@@ -19,6 +19,7 @@ namespace KeezzContractors.API.Services
         void AddContractor(Contractor contractor);
         void AddInvoice(int contractorId, ContractorInvoice contractorInvoice);
         void AddExpense(int contractorInvoiceId, Expense expense);
+        void DeleteContractor(Contractor contractor);
         void DeleteInvoice(ContractorInvoice contractorInvoice);
         bool Save();
     }
