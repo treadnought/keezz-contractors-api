@@ -49,6 +49,11 @@ namespace KeezzContractors.API.Services
             _context.Remove(contractor);
         }
 
+        public void DeleteExpense(Expense expense)
+        {
+            _context.Remove(expense);
+        }
+
         public void DeleteInvoice(ContractorInvoice contractorInvoice)
         {
             _context.ContractorInvoices.Remove(contractorInvoice);
@@ -81,10 +86,10 @@ namespace KeezzContractors.API.Services
             return _context.Contractors.OrderBy(c => c.LastName).ToList();
         }
 
-        public Expense GetExpense(int contractorInvoiceId, int expenseId)
+        public Expense GetExpense(int expenseId)
         {
             return _context.Expenses
-                .Where(e => e.ContractorInvoiceId == contractorInvoiceId && e.Id == expenseId).FirstOrDefault();
+                .Where(e => e.Id == expenseId).FirstOrDefault();
         }
 
         public IEnumerable<Expense> GetExpenses(int contractorInvoiceId)

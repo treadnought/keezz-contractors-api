@@ -15,12 +15,13 @@ namespace KeezzContractors.API.Services
         IEnumerable<ContractorInvoice> GetContractorInvoices(int contractorId);
         ContractorInvoice GetContractorInvoice(int contractorInvoiceId);
         IEnumerable<Expense> GetExpenses(int contractorInvoiceId);
-        Expense GetExpense(int contractorInvoiceId, int expenseId);
+        Expense GetExpense(int expenseId);
         void AddContractor(Contractor contractor);
         void AddInvoice(int contractorId, ContractorInvoice contractorInvoice);
         void AddExpense(int contractorInvoiceId, Expense expense);
         void DeleteContractor(Contractor contractor);
         void DeleteInvoice(ContractorInvoice contractorInvoice);
+        void DeleteExpense(Expense expense);
         bool Save();
     }
 }

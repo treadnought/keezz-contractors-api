@@ -1,4 +1,6 @@
-﻿using KeezzContractors.API.Services;
+﻿using AutoMapper;
+using KeezzContractors.API.Models;
+using KeezzContractors.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,11 +13,15 @@ namespace KeezzContractors.API.Controllers
     [Route("api/contractors/{contractorId}/contractorinvoices/{contractorInvoiceId}/expenses")]
     public class ExpensesController : Controller
     {
-        private LocalMailService _mailService;
+        private IKeezzContractorsRepository _repository;
+        private IMailService _mailService;
         private ILogger<ExpensesController> _logger;
 
-        public ExpensesController(LocalMailService mailService, ILogger<ExpensesController> logger)
+        public ExpensesController(IKeezzContractorsRepository repository, 
+            IMailService mailService, 
+            ILogger<ExpensesController> logger)
         {
+            _repository = repository;
             _mailService = mailService;
             _logger = logger;
         }
@@ -23,32 +29,74 @@ namespace KeezzContractors.API.Controllers
         [HttpGet("")]
         public IActionResult GetExpenses(int contractorId, int contractorInvoiceId)
         {
-            var contractor = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId);
-            if (contractor == null)
+            try
             {
-                _logger.LogInformation($"Contractor with id {contractorId} not found when accessing expenses.");
-                return NotFound();
-            }
+                if (!_repository.ContractorExists(contractorId))
+                {
+                    _logger.LogInformation($"Contractor with id {contractorId} not found when accessing expenses.");
+                    return NotFound();
+                }
 
-            var contractorInvoice = contractor.ContractorInvoices.FirstOrDefault(i => i.Id == contractorInvoiceId);
-            if (contractorInvoice == null)
+                if (!_repository.ContractorInvoiceExists(contractorInvoiceId))
+                {
+                    _logger.LogInformation($"Contractor invoice with id {contractorInvoiceId} not found when accessing expenses.");
+                    return NotFound();
+                }
+
+                var expenses = _repository.GetExpenses(contractorInvoiceId);
+
+                var expensesResults = Mapper.Map<IEnumerable<ExpenseDto>>(expenses);
+
+                return Ok(expensesResults);
+            }
+            catch(Exception ex)
             {
-                _logger.LogInformation($"Contractor invoice with id {contractorInvoiceId} not found when accessing expenses.");
-                return NotFound();
+                _logger.LogCritical($"Exception while getting expenses for contractor invoice with id {contractorInvoiceId} for contractor with id {contractorId}.", ex);
+                return StatusCode(500, "Exception thrown");
             }
-
-            return Ok(contractorInvoice.Expenses);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetExpense(int contractorId, int contractorInvoiceId, int id)
         {
-            var expense = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId)
-                .ContractorInvoices.FirstOrDefault(i => i.Id == contractorInvoiceId)
-                .Expenses.FirstOrDefault(e => e.Id == id);
-            if (expense == null) return NotFound();
+            try
+            {
+                if (!_repository.ContractorExists(contractorId))
+                {
+                    _logger.LogInformation($"Contractor with id {contractorId} not found when accessing expense with id {id}.");
+                    return NotFound();
+                }
 
-            return Ok(expense);
+                if (!_repository.ContractorInvoiceExists(contractorInvoiceId))
+                {
+                    _logger.LogInformation($"Contractor invoice with id {contractorInvoiceId} not found when accessing expense with id {id}.");
+                    return NotFound();
+                }
+
+                var expense = _repository.GetExpense(id);
+
+                if (expense == null)
+                {
+                    _logger.LogInformation($"Expense with id {id} not found.");
+                    return NotFound();
+                }
+
+                var expenseResult = Mapper.Map<ExpenseDto>(expense);
+
+                return Ok(expenseResult);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exception while getting expense with id {id} for contractor invoice with id {contractorInvoiceId} for contractor with id {contractorId}.", ex);
+                return StatusCode(500, "Exception thrown");
+            }
+
+            //var expense = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId)
+            //    .ContractorInvoices.FirstOrDefault(i => i.Id == contractorInvoiceId)
+            //    .Expenses.FirstOrDefault(e => e.Id == id);
+            //if (expense == null) return NotFound();
+
+            //return Ok(expense);
         }
     }
 }
