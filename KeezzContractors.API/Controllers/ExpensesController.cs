@@ -56,7 +56,7 @@ namespace KeezzContractors.API.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetExpense")]
         public IActionResult GetExpense(int contractorId, int contractorInvoiceId, int id)
         {
             try
@@ -90,13 +90,62 @@ namespace KeezzContractors.API.Controllers
                 _logger.LogCritical($"Exception while getting expense with id {id} for contractor invoice with id {contractorInvoiceId} for contractor with id {contractorId}.", ex);
                 return StatusCode(500, "Exception thrown");
             }
+        }
 
-            //var expense = ContractorsDataStore.Current.Contractors.FirstOrDefault(c => c.Id == contractorId)
-            //    .ContractorInvoices.FirstOrDefault(i => i.Id == contractorInvoiceId)
-            //    .Expenses.FirstOrDefault(e => e.Id == id);
-            //if (expense == null) return NotFound();
+        [HttpPost()]
+        public IActionResult CreateExpense(int contractorId, int contractorInvoiceId, [FromBody] ExpenseForCreationDto expense)
+        {
+            try
+            {
+                if (expense == null)
+                {
+                    _logger.LogInformation($"Expense body for contractor invoice with id {contractorInvoiceId} for contractor with id {contractorId} not parsed when creating contractor invoices.");
+                    return BadRequest();
+                }
 
-            //return Ok(expense);
+                if (!_repository.ContractorExists(contractorId))
+                {
+                    _logger.LogInformation($"Contractor with id {contractorId} not found when creating expense for contractor invoice with id {contractorInvoiceId}.");
+                    return NotFound();
+                }
+
+                if (!_repository.ContractorInvoiceExists(contractorInvoiceId))
+                {
+                    _logger.LogInformation($"Contractor invoice with id {contractorInvoiceId} not found when creating expense for contractor with id {contractorId}.");
+                    return NotFound();
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogInformation($"Validation failed when creating expense.");
+                    return BadRequest(ModelState);
+                }
+
+                var finalExpense = Mapper.Map<Entities.Expense>(expense);
+
+                _repository.AddExpense(contractorInvoiceId, finalExpense);
+
+                if (!_repository.Save())
+                {
+                    _logger.LogInformation("Could not add expense.");
+                    return StatusCode(500, "Could not add expense.");
+                }
+
+                var createdExpense = Mapper.Map<ExpenseDto>(finalExpense);
+
+                return CreatedAtRoute("GetExpense", new
+                {
+                    contractorId = contractorId,
+                    contractorInvoiceId = contractorInvoiceId,
+                    id = createdExpense.Id
+                },
+                createdExpense);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exception while creating expense for contractor invoice with id {contractorInvoiceId} for contractor with id {contractorId}.", ex);
+                return StatusCode(500, "Exception thrown");
+            }
         }
     }
 }
