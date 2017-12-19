@@ -37,9 +37,15 @@ namespace KeezzContractors.API.Controllers
                     return NotFound();
                 }
 
-                if (!_repository.ContractorInvoiceExists(contractorInvoiceId))
+                //if (!_repository.ContractorInvoiceExists(contractorInvoiceId))
+                //{
+                //    _logger.LogInformation($"Contractor invoice with id {contractorInvoiceId} not found when accessing expenses.");
+                //    return NotFound();
+                //}
+
+                if (!_repository.ContractorInvoiceExistsForContractor(contractorId, contractorInvoiceId))
                 {
-                    _logger.LogInformation($"Contractor invoice with id {contractorInvoiceId} not found when accessing expenses.");
+                    _logger.LogInformation($"Contractor invoice with id {contractorInvoiceId} not found for Contractor with id {contractorId} when accessing expenses.");
                     return NotFound();
                 }
 
@@ -73,7 +79,7 @@ namespace KeezzContractors.API.Controllers
                 //    return NotFound();
                 //}
 
-                if (!_repository.ContractorInvoiceExistsForContractor(contractorId, contractorInvoiceId)
+                if (!_repository.ContractorInvoiceExistsForContractor(contractorId, contractorInvoiceId))
                 {
                     _logger.LogInformation($"Contractor invoice with id {contractorInvoiceId} not found for Contractor with id {contractorId} when accessing expense with id {id}.");
                     return NotFound();

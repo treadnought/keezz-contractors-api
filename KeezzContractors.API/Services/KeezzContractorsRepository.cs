@@ -46,14 +46,14 @@ namespace KeezzContractors.API.Services
 
         public bool ContractorInvoiceExistsForContractor(int contractorId, int contractorInvoiceId)
         {
-            var contractor = GetContractor(contractorId);
-            return contractor.ContractorInvoices.Any(i => i.Id == contractorInvoiceId);
+            var contractorInvoices = GetContractorInvoices(contractorId);
+            return contractorInvoices.Any(i => i.Id == contractorInvoiceId);
         }
 
         public bool ExpenseExistsForContractorInvoice(int contractorInvoiceId, int expenseId)
         {
-            var contractorInvoice = GetContractorInvoice(contractorInvoiceId);
-            return contractorInvoice.Expenses.Any(e => e.Id == expenseId);
+            var expenses = GetExpenses(contractorInvoiceId);
+            return expenses.Any(e => e.Id == expenseId);
         }
 
         public void DeleteContractor(Contractor contractor)
