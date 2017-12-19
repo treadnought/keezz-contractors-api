@@ -19,8 +19,8 @@ namespace KeezzContractors.API.Controllers
         private ILogger<ContractorInvoicesController> _logger;
 
         public ContractorInvoicesController(
-            IKeezzContractorsRepository repository, 
-            IMailService mailService, 
+            IKeezzContractorsRepository repository,
+            IMailService mailService,
             ILogger<ContractorInvoicesController> logger)
         {
             _repository = repository;
@@ -60,6 +60,12 @@ namespace KeezzContractors.API.Controllers
                 if (!_repository.ContractorExists(contractorId))
                 {
                     _logger.LogInformation($"Contractor with id {contractorId} not found when accessing contractor invoice.");
+                    return NotFound();
+                }
+
+                if (!_repository.ContractorInvoiceExistsForContractor(contractorId, id))
+                {
+                    _logger.LogInformation($"Contractor with id {contractorId} has no invoice with id {id}.");
                     return NotFound();
                 }
 
@@ -269,7 +275,7 @@ namespace KeezzContractors.API.Controllers
             }
 
             var contractorInvoiceEntity = _repository.GetContractorInvoice(id);
-            if( contractorInvoiceEntity == null)
+            if (contractorInvoiceEntity == null)
             {
                 _logger.LogInformation($"Contractor invoice with id {id} for contractor with id {contractorId} not found when deleting.");
                 return NotFound();

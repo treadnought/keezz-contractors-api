@@ -10,6 +10,8 @@ namespace KeezzContractors.API.Services
     {
         bool ContractorExists(int contractorId);
         bool ContractorInvoiceExists(int contractorInvoiceId);
+        bool ContractorInvoiceExistsForContractor(int contractorId, int contractorInvoiceId);
+        bool ExpenseExistsForContractorInvoice(int contractorInvoiceId, int expenseId);
         IEnumerable<Contractor>GetContractors();
         Contractor GetContractor(int contractorId, bool includeContractorInvoices = false);
         IEnumerable<ContractorInvoice> GetContractorInvoices(int contractorId);
