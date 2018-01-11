@@ -165,5 +165,32 @@ namespace KeezzContractors.API.Controllers
                 return StatusCode(500, "Exception thrown");
             }
         }
+
+        //[HttpPut("{id}")]
+        //public IActionResult UpdateExpense(int contractorId, int contractorInvoiceId, int expenseId,
+        //    [FromBody] ExpenseForUpdateDto expense)
+        //{
+        //    try
+        //    {
+        //        if (expense == null)
+        //        {
+        //            _logger.LogInformation($"Expense body for contractor invoice with id {contractorInvoiceId} for contractor with id {contractorId} not parsed when fully updating expense.");
+        //            return BadRequest();
+        //        }
+
+        //        if (!_repository.ContractorExists(contractorId))
+        //        {
+        //            _logger.LogInformation($"Contractor with id {contractorId} not found when fully updating expense with id {expenseId}");
+        //            return NotFound();
+        //        }
+
+
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        _logger.LogCritical($"Exception while fully updating expense with id {expenseId} for contractor invoice with id {contractorInvoiceId} for contractor with id {contractorId}.", ex);
+        //        return StatusCode(500, "Exception thrown");
+        //    }
+        //}
     }
 }

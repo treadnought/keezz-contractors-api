@@ -82,6 +82,12 @@ namespace KeezzContractors.API.Services
             return _context.Contractors.Where(c => c.Id == contractorId).FirstOrDefault();
         }
 
+        public ContractorInvoice GetContractorInvoiceForContractor(int contractorId, int id)
+        {
+            return _context.ContractorInvoices
+                .Where(i => i.ContractorId == contractorId && i.Id == id).FirstOrDefault();
+        }
+
         public ContractorInvoice GetContractorInvoice(int contractorInvoiceId)
         {
             return _context.ContractorInvoices.Where(i => i.Id == contractorInvoiceId).FirstOrDefault();
@@ -96,6 +102,11 @@ namespace KeezzContractors.API.Services
         public IEnumerable<Contractor> GetContractors()
         {
             return _context.Contractors.OrderBy(c => c.LastName).ToList();
+        }
+
+        public Expense GetExpenseForInvoice(int contractorInvoiceId, int id)
+        {
+            throw new NotImplementedException();
         }
 
         public Expense GetExpense(int expenseId)

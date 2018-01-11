@@ -63,17 +63,17 @@ namespace KeezzContractors.API.Controllers
                     return NotFound();
                 }
 
-                if (!_repository.ContractorInvoiceExistsForContractor(contractorId, id))
-                {
-                    _logger.LogInformation($"Contractor with id {contractorId} has no invoice with id {id}.");
-                    return NotFound();
-                }
+                //if (!_repository.ContractorInvoiceExistsForContractor(contractorId, id))
+                //{
+                //    _logger.LogInformation($"Contractor with id {contractorId} has no invoice with id {id}.");
+                //    return NotFound();
+                //}
 
-                var contractorInvoice = _repository.GetContractorInvoice(id);
+                var contractorInvoice = _repository.GetContractorInvoiceForContractor(contractorId, id);
 
                 if (contractorInvoice == null)
                 {
-                    _logger.LogInformation($"Contractor invoice with id {id} not found.");
+                    _logger.LogInformation($"Contractor invoice with id {id} not found for contractor with id {contractorId}.");
                     return NotFound();
                 }
 
@@ -158,11 +158,11 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest();
                 }
 
-                if (!_repository.ContractorExists(contractorId))
-                {
-                    _logger.LogInformation($"Contractor with id {contractorId} not found when fully updating contractor invoice with id {id}");
-                    return NotFound();
-                }
+                //if (!_repository.ContractorExists(contractorId))
+                //{
+                //    _logger.LogInformation($"Contractor with id {contractorId} not found when fully updating contractor invoice with id {id}");
+                //    return NotFound();
+                //}
 
                 //if (contractor.ContractorInvoices.Any(i => i.ContractorInvRef == contractorInvoice.ContractorInvRef))
                 //{
@@ -175,7 +175,7 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var contractorInvoiceEntity = _repository.GetContractorInvoice(id);
+                var contractorInvoiceEntity = _repository.GetContractorInvoiceForContractor(contractorId, id);
                 if (contractorInvoiceEntity == null)
                 {
                     _logger.LogInformation($"Contractor invoice with id {id} for contractor with id {contractorId} not found when fully updating.");
@@ -223,7 +223,7 @@ namespace KeezzContractors.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var contractorInvoiceEntity = _repository.GetContractorInvoice(id);
+                var contractorInvoiceEntity = _repository.GetContractorInvoiceForContractor(contractorId, id);
                 if (contractorInvoiceEntity == null)
                 {
                     _logger.LogInformation($"Contractor invoice with id {id} not found when partially updating contractor invoice with id {id}");
@@ -268,29 +268,37 @@ namespace KeezzContractors.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteContractorInvoice(int contractorId, int id)
         {
-            if (!_repository.ContractorExists(contractorId))
+            try
             {
-                _logger.LogInformation($"Contractor with id {id} not found when deleting contractor invoice.");
-                return NotFound();
-            }
+                if (!_repository.ContractorExists(contractorId))
+                {
+                    _logger.LogInformation($"Contractor with id {id} not found when deleting contractor invoice.");
+                    return NotFound();
+                }
 
-            var contractorInvoiceEntity = _repository.GetContractorInvoice(id);
-            if (contractorInvoiceEntity == null)
+                var contractorInvoiceEntity = _repository.GetContractorInvoiceForContractor(contractorId, id);
+                if (contractorInvoiceEntity == null)
+                {
+                    _logger.LogInformation($"Contractor invoice with id {id} for contractor with id {contractorId} not found when deleting.");
+                    return NotFound();
+                }
+
+                _repository.DeleteInvoice(contractorInvoiceEntity);
+
+                if (!_repository.Save())
+                {
+                    return StatusCode(500, "Could not delete invoice.");
+                }
+
+                _mailService.Send("Delete Delete", $"Contractor invoice with id {id} was deleted.");
+
+                return NoContent();
+            }
+            catch (Exception ex)
             {
-                _logger.LogInformation($"Contractor invoice with id {id} for contractor with id {contractorId} not found when deleting.");
-                return NotFound();
+                _logger.LogCritical($"Exception while deleting invoice with id {id} for contractor with id {contractorId}.", ex);
+                return StatusCode(500, "Exception thrown");
             }
-
-            _repository.DeleteInvoice(contractorInvoiceEntity);
-
-            if (!_repository.Save())
-            {
-                return StatusCode(500, "Could not delete invoice.");
-            }
-
-            _mailService.Send("Delete Delete", $"Contractor invoice with id {id} was deleted.");
-
-            return NoContent();
         }
     }
 }

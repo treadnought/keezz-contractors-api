@@ -60,7 +60,7 @@ namespace KeezzContractors.API.Controllers
 
                 if (includeInvoices)
                 {
-                    var contractorResult = Mapper.Map<ContractorDto>(contractor);
+                    var contractorResult = Mapper.Map<ContractorWithInvoicesWithoutExpensesDto>(contractor);
 
                     return Ok(contractorResult);
                 }
